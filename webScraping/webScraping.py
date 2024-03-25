@@ -12,6 +12,7 @@
 #image file names
 
 import os
+from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
@@ -44,6 +45,23 @@ def downloadWebpage(webpageUrl):
     print(f"Webpage downloaded and saved as '{outputFile}'")
 
     return os.path.abspath(outputFile)
+
+"""def filterContentAndImages(htmlFilePath):
+    #Read the html file
+    with open(htmlFilePath, 'r', encoding='utf-8') as file:
+        htmlContent = file.read()
+
+    #parse the html file using BeautifulSoup
+    soup = BeautifulSoup(htmlContent, 'html.parser')
+
+    # Find all tags containing text
+    textTags = soup.find_all(lambda tag: tag.text.strip() != '')
+
+    # Find all image tags
+    imgTags = soup.find_all('img')
+
+    requiredContent = textTags + imgTags"""
+
 
 requiredFilePath = downloadWebpage(r"https://chem.libretexts.org/Bookshelves/Introductory_Chemistry/Basics_of_General_Organic_and_Biological_Chemistry_(Ball_et_al.)/02%3A_Elements_Atoms_and_the_Periodic_Table/2.02%3A_Atomic_Theory")
 print("Path of saved HTML file", requiredFilePath)
