@@ -11,7 +11,43 @@
 #tags and find them and download them and replace the image tag(href) with # and returns a list of 
 #image file names
 
-print(hello)
+import os
+from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.by import By
+
+from selenium import webdriver
+
+def downloadWebpage(webpageUrl):
+    # Set the path to the ChromeDriver executable
+    driverPath = "C:\\Users\\naved\\Downloads\\chromedriver_win32\\chromedriver.exe"
+
+    # Default output file path
+    outputFile = 'downloadedHtml.html'
+
+    # Initialize chrome web driver
+    driver = webdriver.Chrome()
+
+    # Get webpage url
+    driver.get(webpageUrl)
+
+    # Getting html content
+    webpageContent = driver.page_source
+
+    # Close the webdriver
+    driver.quit()
+
+    # Saving html content to file
+    with open(outputFile, 'w', encoding='utf-8') as f:
+        f.write(webpageContent)
+
+    print(f"Webpage downloaded and saved as '{outputFile}'")
+
+    return os.path.abspath(outputFile)
+
+requiredFilePath = downloadWebpage(r"https://chem.libretexts.org/Bookshelves/Introductory_Chemistry/Basics_of_General_Organic_and_Biological_Chemistry_(Ball_et_al.)/02%3A_Elements_Atoms_and_the_Periodic_Table/2.02%3A_Atomic_Theory")
+print("Path of saved HTML file", requiredFilePath)
+
 
 
 
