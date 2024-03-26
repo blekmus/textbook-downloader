@@ -46,7 +46,7 @@ def downloadWebpage(webpageUrl):
 
     return os.path.abspath(outputFile)
 
-"""def filterContentAndImages(htmlFilePath):
+def filterContentAndImages(htmlFilePath):
     #Read the html file
     with open(htmlFilePath, 'r', encoding='utf-8') as file:
         htmlContent = file.read()
@@ -54,17 +54,31 @@ def downloadWebpage(webpageUrl):
     #parse the html file using BeautifulSoup
     soup = BeautifulSoup(htmlContent, 'html.parser')
 
-    # Find all tags containing text
-    textTags = soup.find_all(lambda tag: tag.text.strip() != '')
+    # Find all <p> tags
+    pTags = soup.find_all('p')
 
     # Find all image tags
     imgTags = soup.find_all('img')
 
-    requiredContent = textTags + imgTags"""
+    requiredContent = str(pTags) + str(imgTags)
+
+    # Create a new HTML file with the filtered content
+    filteredOutputFile = 'filteredContent.html'
+    with open(filteredOutputFile, 'w', encoding='utf-8') as f:
+        for tag in requiredContent:
+            f.write(str(tag) )
+
+    print(f"Filtered content saved as '{filteredOutputFile}'")
+
+    return os.path.abspath(filteredOutputFile)
 
 
 requiredFilePath = downloadWebpage(r"https://chem.libretexts.org/Bookshelves/Introductory_Chemistry/Basics_of_General_Organic_and_Biological_Chemistry_(Ball_et_al.)/02%3A_Elements_Atoms_and_the_Periodic_Table/2.02%3A_Atomic_Theory")
 print("Path of saved HTML file", requiredFilePath)
+htmlFilePath = requiredFilePath
+filteredFilePath = filterContentAndImages(htmlFilePath)
+print("Path of filtered html file",filteredFilePath)
+
 
 
 
