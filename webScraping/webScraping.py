@@ -46,27 +46,48 @@ def downloadWebpage(webpageUrl):
 
     return os.path.abspath(outputFile)
 
+from bs4 import BeautifulSoup
+import os
+
 def filterContentAndImages(htmlFilePath):
-    #Read the html file
+    # Read the html file
     with open(htmlFilePath, 'r', encoding='utf-8') as file:
         htmlContent = file.read()
 
-    #parse the html file using BeautifulSoup
+    # Parse the html file using BeautifulSoup
     soup = BeautifulSoup(htmlContent, 'html.parser')
 
     # Find all <p> tags
     pTags = soup.find_all('p')
 
-    # Find all image tags
-    imgTags = soup.find_all('img')
+    # Find all image tags within <div> tags along with the description content
+    divTags = soup.find_all('div')
+    imgTagsWithDescription = []
+    for div in divTags:
+        imagesInDiv = div.find_all('img')
+        for img in imagesInDiv:
+            imgWithDescription = img
+            nextSibling = img.find_next_sibling()
+            description = ""
+            while nextSibling and nextSibling.name != 'img':
+                if nextSibling.name == 'p':
+                    description += str(nextSibling) + '\n'
+                nextSibling = nextSibling.find_next_sibling()
+            imgWithDescription.description = description
+            imgTagsWithDescription.append(imgWithDescription)
 
-    requiredContent = str(pTags) + str(imgTags)
+    # Concatenate <p> tags with newline characters
+    requiredContent = '\n'.join(str(p) for p in pTags) + '\n'
+
+    # Append filtered images with their descriptions
+    for img in imgTagsWithDescription:
+        requiredContent += str(img)
+        requiredContent += img.description
 
     # Create a new HTML file with the filtered content
     filteredOutputFile = 'filteredContent.html'
     with open(filteredOutputFile, 'w', encoding='utf-8') as f:
-        for tag in requiredContent:
-            f.write(str(tag) )
+        f.write(requiredContent)
 
     print(f"Filtered content saved as '{filteredOutputFile}'")
 
