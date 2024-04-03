@@ -27,7 +27,7 @@ def downloadWebpage(workingDir, webpageUrl, driverPath):
     outputFile = os.path.join(workingDir, "webpage.html")
 
     # Initialize chrome web driver and get the webpage
-    driver = webdriver.Chrome(driverPath)
+    driver = webdriver.Chrome()
     driver.get(webpageUrl)
 
     # Get html content
@@ -68,7 +68,7 @@ def filterContent(htmlFilePath):
         return None
 
 
-driverPath = "C:\\Users\\naved\\Downloads\\chromedriver_win32\\chromedriver.exe"
+driverPath = r"C:\Users\naved\Downloads\chromedriver_win32\chromedriver.exe"
 url = "https://chem.libretexts.org/Bookshelves/Introductory_Chemistry/Basics_of_General_Organic_and_Biological_Chemistry_(Ball_et_al.)/02%3A_Elements_Atoms_and_the_Periodic_Table/2.02%3A_Atomic_Theory"
 
 # create a temporary directory to store data
