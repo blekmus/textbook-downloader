@@ -46,40 +46,32 @@ def downloadWebpage(webpageUrl):
 
     return os.path.abspath(outputFile)
 
-def filterContentAndImages(htmlFilePath):
-    # Read the html file
+def filterContent(htmlFilePath):
     with open(htmlFilePath, 'r', encoding='utf-8') as file:
         htmlContent = file.read()
 
-    # Parse the html file using BeautifulSoup
     soup = BeautifulSoup(htmlContent, 'html.parser')
 
-    # Find all <p> tags
-    pTags = soup.find_all('p')
+    contentSection = soup.find('section', class_='mt-content-container')
 
-    # Find all image tags within <div> tags
-    divTags = soup.find_all('div')
-    imgTags_within_div = []
-    for div in divTags:
-        imgTags_within_div.extend(div.find_all('img'))
+    if contentSection:
+        requiredContent = str(contentSection)
 
-    # Concatenate <p> tags with newline characters
-    requiredContent = '\n'.join(str(p) for p in pTags) + '\n' + str(imgTags_within_div)
+        filteredOutputFile = 'filteredContent.html'
+        with open(filteredOutputFile, 'w', encoding='utf-8') as f:
+            f.write(requiredContent)
 
-    # Create a new HTML file with the filtered content
-    filteredOutputFile = 'filteredContent.html'
-    with open(filteredOutputFile, 'w', encoding='utf-8') as f:
-        f.write(requiredContent)
+        print(f"Filtered content saved as '{filteredOutputFile}'")
 
-    print(f"Filtered content saved as '{filteredOutputFile}'")
-
-    return os.path.abspath(filteredOutputFile)
-
+        return os.path.abspath(filteredOutputFile)
+    else:
+        print("No section with class 'mt-content-container' found.")
+        return None
 
 requiredFilePath = downloadWebpage(r"https://chem.libretexts.org/Bookshelves/Introductory_Chemistry/Basics_of_General_Organic_and_Biological_Chemistry_(Ball_et_al.)/02%3A_Elements_Atoms_and_the_Periodic_Table/2.02%3A_Atomic_Theory")
 print("Path of saved HTML file", requiredFilePath)
 htmlFilePath = requiredFilePath
-filteredFilePath = filterContentAndImages(htmlFilePath)
+filteredFilePath = filterContent(htmlFilePath)
 print("Path of filtered html file",filteredFilePath)
 
 
