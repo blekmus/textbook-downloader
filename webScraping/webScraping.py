@@ -45,25 +45,34 @@ def downloadWebpage(workingDir, webpageUrl, driverPath):
     return outputFile
 
 
-def filterContent(htmlFilePath):
+def filterContent(workingDir, htmlFilePath):
+    
+    #open html file and read it's content
     with open(htmlFilePath, 'r', encoding='utf-8') as file:
         htmlContent = file.read()
 
+    #parse the html content using beautifulSoup
     soup = BeautifulSoup(htmlContent, 'html.parser')
 
+    #find the section with a specific class name
     contentSection = soup.find('section', class_='mt-content-container')
 
+    #check if required section is found 
     if contentSection:
+        #convert content section to string 
         requiredContent = str(contentSection)
 
-        filteredOutputFile = 'filteredContent.html'
-        with open(filteredOutputFile, 'w', encoding='utf-8') as f:
+        # Create a temporary HTML file in the working directory
+        tempHtmlFilePath = os.path.join(workingDir, "filteredContent.html")
+
+        with open(tempHtmlFilePath, 'w', encoding='utf-8') as f:
             f.write(requiredContent)
 
-        print(f"Filtered content saved as '{filteredOutputFile}'")
+        print(f"Filtered content saved as '{tempHtmlFilePath}'")
 
-        return os.path.abspath(filteredOutputFile)
+        return tempHtmlFilePath
     else:
+        # Print a message if no section with class 'mt-content-container' is found
         print("No section with class 'mt-content-container' found.")
         return None
 
@@ -78,10 +87,6 @@ workingDir = tempfile.mkdtemp()
 htmlFilePath = downloadWebpage(workingDir, url, os.path.abspath(driverPath))
 print("Path of saved HTML file", htmlFilePath)
 
-# delete the temporary directory for now
-# remove it if you're using it later
-os.rmdir(workingDir)
-
 # get the main content from the html file
-filteredFilePath = filterContent(htmlFilePath)
+filteredFilePath = filterContent(workingDir, htmlFilePath)
 print("Path of filtered html file", filteredFilePath)
