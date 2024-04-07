@@ -1,21 +1,31 @@
-# function Two
-# it takes parameter of an html file path and uses beautifulSoup to filter required content and creates
-# a new file and saves the filter data into it and returns file path of new file
-
-# function Three
-# takes in a parameter of filtered html file path and loads the data into beautifulSoup and goes through
-# tags and find them and download them and replace the image tag(href) with # and returns a list of
-# image file names
-
+# TODO
 # look into https://github.com/SergeyPirogov/webdriver_manager for managing driver
+# look into deleting the temp directory that was made when script was run last or when script is closed
 
 import os
 from bs4 import BeautifulSoup
 from selenium import webdriver
 import tempfile
+import requests
 
 
-def downloadWebpage(workingDir, webpageUrl, driverPath):
+def stripURL(urlString):
+    """
+    Strips the URL to get the base URL and file extension
+    :param urlString: URL string to be stripped
+    :return: A list containing the base URL and file extension
+    """
+    
+    # Split the URL string to get the base URL and parameters
+    baseURL, params = urlString.split("?", 1)
+
+    # Split the base URL to get the file extension
+    filePath, fileExtension = baseURL.rsplit(".", 1)
+
+    return [baseURL, fileExtension]
+
+
+def downloadWebpage(workingDir, webpageUrl):
     """
     Downloads the webpage and saves it as an HTML file
     :param webpageUrl: URL of the webpage to be downloaded
@@ -45,48 +55,118 @@ def downloadWebpage(workingDir, webpageUrl, driverPath):
     return outputFile
 
 
-def filterContent(workingDir, htmlFilePath):
-    
-    #open html file and read it's content
+def filterMainContent(workingDir, htmlFilePath):
+    """
+    Filters the main content from the HTML file and saves it to a new file
+    :param htmlFilePath: Path of the HTML file to be filtered
+    :return: Absolute path of the filtered HTML file
+    """
+
+    # open html file and read it's content
     with open(htmlFilePath, 'r', encoding='utf-8') as file:
         htmlContent = file.read()
 
-    #parse the html content using beautifulSoup
+    # parse the html content using beautifulSoup
     soup = BeautifulSoup(htmlContent, 'html.parser')
 
-    #find the section with a specific class name
+    # find the section with a specific class name
     contentSection = soup.find('section', class_='mt-content-container')
 
-    #check if required section is found 
-    if contentSection:
-        #convert content section to string 
-        requiredContent = str(contentSection)
-
-        # Create a temporary HTML file in the working directory
-        tempHtmlFilePath = os.path.join(workingDir, "filteredContent.html")
-
-        with open(tempHtmlFilePath, 'w', encoding='utf-8') as f:
-            f.write(requiredContent)
-
-        print(f"Filtered content saved as '{tempHtmlFilePath}'")
-
-        return tempHtmlFilePath
-    else:
+    # check if required section is found
+    if not contentSection:
         # Print a message if no section with class 'mt-content-container' is found
         print("No section with class 'mt-content-container' found.")
-        return None
+        return
+
+    # remove footer
+    footer = contentSection.find("footer", class_="mt-content-footer")
+    if footer:
+        footer.decompose()
+
+    # convert content section to string
+    requiredContent = str(contentSection)
+
+    # Create a temporary HTML file in the working directory
+    tempHtmlFilePath = os.path.join(workingDir, "filteredWebpage.html")
+
+    with open(tempHtmlFilePath, 'w', encoding='utf-8') as f:
+        f.write(requiredContent)
+
+    print(f"Filtered content saved as '{tempHtmlFilePath}'")
+
+    return tempHtmlFilePath
 
 
-driverPath = r"C:\Users\naved\Downloads\chromedriver_win32\chromedriver.exe"
-url = "https://chem.libretexts.org/Bookshelves/Introductory_Chemistry/Basics_of_General_Organic_and_Biological_Chemistry_(Ball_et_al.)/02%3A_Elements_Atoms_and_the_Periodic_Table/2.02%3A_Atomic_Theory"
+def handleImages(workingDir, htmlFilePath):
+    """
+    Downloads images from the HTML file and saves them to the working directory
+    :param htmlFilePath: Path of the HTML file
+    :return: Absolute path of the updated HTML file
+    """
+
+    # open html file and read it's content
+    with open(htmlFilePath, 'r', encoding='utf-8') as file:
+        htmlContent = file.read()
+
+    # parse the html content using beautifulSoup
+    soup = BeautifulSoup(htmlContent, 'html.parser')
+
+    # find all image tags
+    imageTags = soup.find_all('img')
+
+    # list to store image file names
+    imageFileNames = []
+
+    # loop through all image tags
+    for index, imageTag in enumerate(imageTags):
+        # get the image source URL
+        imageUrl, imageExt = stripURL(imageTag['src'])
+
+        # download the image content
+        imageContent = requests.get(imageUrl).content
+
+        # save the image content to a file
+        imageFileName = f"image_{index}.{imageExt}"
+        imageFilePath = os.path.join(workingDir, imageFileName)
+
+        with open(imageFilePath, 'wb') as f:
+            f.write(imageContent)
+
+        # append the image file name to the list
+        imageFileNames.append(imageFileName)
+
+        # replace the image tag with the image file name
+        imageTag['src'] = imageFileName
+
+    # save the updated html content to a file
+    finalHtmlFilePath = os.path.join(workingDir, "finalWebpage.html")
+
+    with open(finalHtmlFilePath, 'w', encoding='utf-8') as f:
+        f.write(str(soup))
+
+    print(f"Images downloaded and saved as '{imageFileNames}'")
+    print(f"Final HTML content saved as '{finalHtmlFilePath}'")
+
+    return finalHtmlFilePath
+
+
+# driverPath = r"C:\Users\naved\Downloads\chromedriver_win32\chromedriver.exe"
+url = "https://chem.libretexts.org/Bookshelves/Physical_and_Theoretical_Chemistry_Textbook_Maps/Physical_Chemistry_(LibreTexts)/01%3A_The_Dawn_of_the_Quantum_Theory/1.01%3A_Blackbody_Radiation_Cannot_Be_Explained_Classically"
 
 # create a temporary directory to store data
 workingDir = tempfile.mkdtemp()
 
 # download the webpage
-htmlFilePath = downloadWebpage(workingDir, url, os.path.abspath(driverPath))
+htmlFilePath = downloadWebpage(workingDir, url)
 print("Path of saved HTML file", htmlFilePath)
 
 # get the main content from the html file
-filteredFilePath = filterContent(workingDir, htmlFilePath)
+filteredFilePath = filterMainContent(workingDir, htmlFilePath)
 print("Path of filtered html file", filteredFilePath)
+
+# download images from the html file
+finalFilePath = handleImages(workingDir, filteredFilePath)
+print("Path of final html file", finalFilePath)
+
+# open html file folder in the browser (windows only)
+os.startfile(workingDir)
