@@ -1,6 +1,7 @@
 # TODO
 # look into https://github.com/SergeyPirogov/webdriver_manager for managing driver
 # look into deleting the temp directory that was made when script was run last or when script is closed
+# implement either tkinter or the open library to open the folder for compatibility
 
 import os
 from bs4 import BeautifulSoup
@@ -15,7 +16,7 @@ def stripURL(urlString):
     :param urlString: URL string to be stripped
     :return: A list containing the base URL and file extension
     """
-    
+
     # Split the URL string to get the base URL and parameters
     baseURL, params = urlString.split("?", 1)
 

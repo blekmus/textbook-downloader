@@ -1,0 +1,5 @@
+beautifulsoup4==4.12.3
+customtkinter==5.2.2
+platformdirs==4.2.1
+Requests==2.31.0
+selenium==4.20.0
