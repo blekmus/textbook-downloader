@@ -150,4 +150,3 @@ class WebScrape:
         fileExtension = baseURL.rsplit(".", 1)[1]
 
         return [baseURL, fileExtension]
-
