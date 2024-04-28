@@ -1,4 +1,4 @@
-from src.ui import App
+from src.app import App
 from src.state import State
 
 # # state
@@ -32,3 +32,6 @@ if __name__ == "__main__":
 
     # render app
     app.mainloop()
+
+    # url
+    # https://chem.libretexts.org/Bookshelves/Physical_and_Theoretical_Chemistry_Textbook_Maps/Physical_Chemistry_(LibreTexts)/01%3A_The_Dawn_of_the_Quantum_Theory/1.01%3A_Blackbody_Radiation_Cannot_Be_Explained_Classically

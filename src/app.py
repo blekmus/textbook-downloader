@@ -1,8 +1,13 @@
 import customtkinter
 from tkinter.filedialog import askdirectory
 from src.state import State
+from src.webscrape import WebScrape
 
 customtkinter.set_appearance_mode("System")
+
+# TODO
+# implement cleanup function to delete the working directory after running and to delete the last working dir if it exists
+# look into https://github.com/SergeyPirogov/webdriver_manager for managing driver
 
 
 class App(customtkinter.CTk):
@@ -69,12 +74,11 @@ class App(customtkinter.CTk):
         self.urlEntry.insert(0, self.appState.downloadURL)
 
         # download button
-        self.downloadButton = customtkinter.CTkButton(self, text="Download")
+        self.downloadButton = customtkinter.CTkButton(self, text="Download", command=self.handleDownload)
         self.downloadButton.grid(
             row=5, column=4, padx=20, pady=(10, 0), sticky="ne", columnspan=2
         )
 
-    # open save path selector
     def openSavePathSelector(self):
         directory = askdirectory()
         self.appState.setSavePath(directory)
@@ -83,4 +87,16 @@ class App(customtkinter.CTk):
 
     def handleDownload(self):
         self.appState.setDownloadURL(self.urlEntry.get())
-        pass
+        scraper = WebScrape(self.appState)
+
+        # download the webpage
+        scraper.downloadWebpage()
+
+        # filter the main content
+        scraper.filterMainContent()
+
+        # handle the images
+        scraper.handleImages()
+
+        # save the file to the save path
+        scraper.saveFiles()

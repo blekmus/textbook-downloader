@@ -23,27 +23,41 @@ class State:
 
         self.configPath: str = configPath
 
-        # check if savepath is in config
+        # check if savePath is in config
         if "savePath" not in config:
             config["savePath"] = ""
         if "downloadURL" not in config:
             config["downloadURL"] = ""
+        if "workingPath" not in config:
+            config["workingPath"] = ""
 
         self.savePath: str = config["savePath"]
         self.downloadURL: str = config["downloadURL"]
+        self.workingPath: str = config["workingPath"]
 
     def setSavePath(self, savePath):
         self.savePath = savePath
-
-        with open(self.configPath, "w") as f:
-            json.dump({"savePath": self.savePath, "downloadURL": self.downloadURL}, f)
-
-        return True
+        self.saveConfig()
 
     def setDownloadURL(self, downloadURL):
         self.downloadURL = downloadURL
+        self.saveConfig()
+
+    def setWorkingPath(self, workingPath):
+        self.workingPath = workingPath
+        self.saveConfig()
+
+    def saveConfig(self):
+        """
+        Saves the current state to the config file
+        """
 
         with open(self.configPath, "w") as f:
-            json.dump({"savePath": self.savePath, "downloadURL": self.downloadURL}, f)
-
-        return True
+            json.dump(
+                {
+                    "savePath": self.savePath,
+                    "downloadURL": self.downloadURL,
+                    "workingPath": self.workingPath,
+                },
+                f,
+            )
