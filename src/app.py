@@ -2,12 +2,10 @@ import customtkinter
 from tkinter.filedialog import askdirectory
 from src.state import State
 from src.webscrape import WebScrape
+import subprocess
+import sys
 
 customtkinter.set_appearance_mode("System")
-
-# TODO
-# implement cleanup function to delete the working directory after running and to delete the last working dir if it exists
-# look into https://github.com/SergeyPirogov/webdriver_manager for managing driver
 
 
 class App(customtkinter.CTk):
@@ -19,11 +17,14 @@ class App(customtkinter.CTk):
 
         # configure window
         self.title("Webpage Downloader")
-        self.geometry(f"{600}x{300}")
+        self.geometry(f"{600}x{360}")
 
         # configure grid layout
-        self.grid_columnconfigure((1, 2, 3, 4, 5), weight=1)
-        self.grid_rowconfigure((1, 2, 3, 4, 5, 6), weight=1)
+        self.grid_columnconfigure(4, weight=0)
+        self.grid_columnconfigure((1, 2, 3, 5), weight=1)
+        self.grid_rowconfigure(1, weight=2)
+        self.grid_rowconfigure((2, 4), weight=0)
+        self.grid_rowconfigure((3, 6, 7), weight=1)
 
         # title label
         self.logoLabel = customtkinter.CTkLabel(
@@ -40,7 +41,7 @@ class App(customtkinter.CTk):
             self, text="Save downloaded document to:", anchor="w"
         )
         self.savePathLabel.grid(
-            row=2, column=1, padx=20, pady=(10, 0), columnspan=5, sticky="sw"
+            row=2, column=1, padx=20, pady=(10, 0), columnspan=5, sticky="nw"
         )
 
         # save path entry
@@ -61,7 +62,7 @@ class App(customtkinter.CTk):
         # download path label
         self.urlLabel = customtkinter.CTkLabel(self, text="Document URL:", anchor="w")
         self.urlLabel.grid(
-            row=4, column=1, padx=20, pady=(10, 0), columnspan=5, sticky="sw"
+            row=4, column=1, padx=20, pady=(10, 0), columnspan=5, sticky="nw"
         )
 
         # download path entry
@@ -69,14 +70,16 @@ class App(customtkinter.CTk):
             self, placeholder_text="Paste the URL here"
         )
         self.urlEntry.grid(
-            row=5, column=1, padx=20, pady=(10, 0), sticky="nwe", columnspan=4
+            row=5, column=1, padx=20, pady=(10, 0), sticky="nwe", columnspan=6
         )
         self.urlEntry.insert(0, self.appState.downloadURL)
 
         # download button
-        self.downloadButton = customtkinter.CTkButton(self, text="Download", command=self.handleDownload)
+        self.downloadButton = customtkinter.CTkButton(
+            self, text="Download", command=self.handleDownload
+        )
         self.downloadButton.grid(
-            row=5, column=4, padx=20, pady=(10, 0), sticky="ne", columnspan=2
+            row=6, column=1, padx=20, pady=(10, 0), sticky="nw", columnspan=4
         )
 
     def openSavePathSelector(self):
@@ -100,3 +103,14 @@ class App(customtkinter.CTk):
 
         # save the file to the save path
         scraper.saveFiles()
+
+        self.downloadButton.configure(
+            text="Downloaded!", fg_color="green", state="normal"
+        )
+
+        if sys.platform == 'darwin':
+            subprocess.check_call(["open", "--", self.appState.outputDir])
+        elif sys.platform == 'linux2':
+            subprocess.check_call(["xdg-open", "--", self.appState.outputDir])
+        elif sys.platform == 'win32':
+            subprocess.check_call(["explorer", self.appState.outputDir])

@@ -5,11 +5,13 @@ import tempfile
 import requests
 from src.state import State
 from datetime import datetime
+from selenium.webdriver.chrome.options import Options as ChromeOptions
+import shutil
 
 
 class WebScrape:
     def __init__(self, state: State):
-        self.workingDir = tempfile.mkdtemp()
+        self.workingDir = tempfile.mkdtemp(prefix="webpage-downloader-")
         self.appState = state
 
         # set working path in state
@@ -23,8 +25,11 @@ class WebScrape:
         # Default output file path
         self.originalPage = os.path.join(self.workingDir, "originalPage.html")
 
+        chromeOptions = ChromeOptions()
+        chromeOptions.add_argument("--headless")
+        driver = webdriver.Chrome(options=chromeOptions)
+
         # Initialize chrome web driver and get the webpage
-        driver = webdriver.Chrome()
         driver.get(self.appState.downloadURL)
 
         # Get html content
@@ -43,14 +48,14 @@ class WebScrape:
         """
 
         # open html file and read it's content
-        with open(self.originalPage, 'r', encoding='utf-8') as file:
+        with open(self.originalPage, "r", encoding="utf-8") as file:
             htmlContent = file.read()
 
         # parse the html content using beautifulSoup
-        soup = BeautifulSoup(htmlContent, 'html.parser')
+        soup = BeautifulSoup(htmlContent, "html.parser")
 
         # find the section with a specific class name
-        contentSection = soup.find('section', class_='mt-content-container')
+        contentSection = soup.find("section", class_="mt-content-container")
 
         # check if required section is found
         if not contentSection:
@@ -82,10 +87,10 @@ class WebScrape:
             htmlContent = file.read()
 
         # parse the html content using beautifulSoup
-        soup = BeautifulSoup(htmlContent, 'html.parser')
+        soup = BeautifulSoup(htmlContent, "html.parser")
 
         # find all image tags
-        imageTags = soup.find_all('img')
+        imageTags = soup.find_all("img")
 
         # list to store image file names
         self.imageFileNames = []
@@ -93,7 +98,7 @@ class WebScrape:
         # loop through all image tags
         for index, imageTag in enumerate(imageTags):
             # get the image source URL
-            imageUrl, imageExt = self.stripURL(imageTag['src'])
+            imageUrl, imageExt = self.stripURL(imageTag["src"])
 
             # download the image content
             imageContent = requests.get(imageUrl).content
@@ -102,14 +107,14 @@ class WebScrape:
             imageFileName = f"image_{index}.{imageExt}"
             imageFilePath = os.path.join(self.workingDir, imageFileName)
 
-            with open(imageFilePath, 'wb') as f:
+            with open(imageFilePath, "wb") as f:
                 f.write(imageContent)
 
             # append the image file name to the list
             self.imageFileNames.append(imageFileName)
 
             # replace the image tag with the image file name
-            imageTag['src'] = imageFileName
+            imageTag["src"] = imageFileName
 
         # save the updated html content to a file
         self.imageFilterPage = os.path.join(self.workingDir, "imageFilterPage.html")
@@ -127,14 +132,27 @@ class WebScrape:
         dateStr = now.strftime("%Y-%m-%d_%H-%M-%S")
 
         # Create a new directory in the output directory
-        outputDir = os.path.join(self.appState.savePath, dateStr)
-        os.makedirs(outputDir)
+        self.appState.outputDir = os.path.join(self.appState.savePath, dateStr)
+        os.makedirs(self.appState.outputDir)
 
         # Copy the files to the output directory
-        os.rename(self.imageFilterPage, os.path.join(outputDir, "index.html"))
+        os.rename(
+            self.imageFilterPage, os.path.join(self.appState.outputDir, "index.html")
+        )
 
         for imageFileName in self.imageFileNames:
-            os.rename(os.path.join(self.workingDir, imageFileName), os.path.join(outputDir, imageFileName))
+            os.rename(
+                os.path.join(self.workingDir, imageFileName),
+                os.path.join(self.appState.outputDir, imageFileName),
+            )
+
+    def cleanup(self):
+        """
+        Cleans up the working directory
+        """
+
+        # Remove the working directory
+        shutil.rmtree(self.workingDir)
 
     def stripURL(self, urlString):
         """
