@@ -4,6 +4,7 @@ from src.state import State
 from src.webscrape import WebScrape
 import subprocess
 import sys
+import os
 
 customtkinter.set_appearance_mode("System")
 
@@ -83,7 +84,7 @@ class App(customtkinter.CTk):
         )
 
     def openSavePathSelector(self):
-        directory = askdirectory()
+        directory = os.path.abspath(askdirectory())
         self.appState.setSavePath(directory)
         self.saveEntry.delete(0, "end")
         self.saveEntry.insert(0, directory)
