@@ -23,7 +23,6 @@ class App(customtkinter.CTk):
         # configure grid layout
         self.grid_columnconfigure(4, weight=0)
         self.grid_columnconfigure((1, 2, 3, 5), weight=1)
-        # self.grid_rowconfigure(1, weight=1)
         self.grid_rowconfigure((1, 2, 3, 5), weight=0)
         self.grid_rowconfigure((6, 7), weight=1)
 
