@@ -71,17 +71,17 @@ class WebScrape:
         if footer:
             footer.decompose()
 
-        # remove all script tags
-        for script in contentSection.find_all("script"):
-            script.decompose()
-
-        # remove all elements with class MathJax_Preview
-        for element in contentSection.find_all(class_="MathJax_Preview"):
-            element.decompose()
-
         # remove all elements with class MathJax_Processing
         for element in contentSection.find_all(class_="MathJax_Processing"):
             element.decompose()
+
+        # replace all MathJax_Display divs with their text content
+        for element in contentSection.find_all(class_="MathJax_Preview"):
+            element.replace_with(element.get_text())
+
+        # remove all script tags
+        for script in contentSection.find_all("script"):
+            script.decompose()
 
         # convert content section to string
         requiredContent = str(contentSection)
