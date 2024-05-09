@@ -35,6 +35,9 @@ class WebScrape:
         # Get html content
         webpageContent = driver.page_source
 
+        # save page title
+        self.pageTitle = driver.title
+
         # Close the webdriver
         driver.quit()
 
@@ -67,6 +70,18 @@ class WebScrape:
         footer = contentSection.find("footer", class_="mt-content-footer")
         if footer:
             footer.decompose()
+
+        # remove all script tags
+        for script in contentSection.find_all("script"):
+            script.decompose()
+
+        # remove all elements with class MathJax_Preview
+        for element in contentSection.find_all(class_="MathJax_Preview"):
+            element.decompose()
+
+        # remove all elements with class MathJax_Processing
+        for element in contentSection.find_all(class_="MathJax_Processing"):
+            element.decompose()
 
         # convert content section to string
         requiredContent = str(contentSection)
@@ -127,12 +142,12 @@ class WebScrape:
         Saves the files to the save directory
         """
 
-        # create dir name in format YYYY-MM-DD_HH-MM-SS
+        # create dir name in format pagetitle | YYYY-MM-DD_HH-MM-SS
         now = datetime.now()
-        dateStr = now.strftime("%Y-%m-%d_%H-%M-%S")
+        dirTitle = now.strftime(f"{self.pageTitle} | %Y-%m-%d_%H-%M-%S")
 
         # Create a new directory in the output directory
-        self.appState.outputDir = os.path.join(self.appState.savePath, dateStr)
+        self.appState.outputDir = os.path.join(self.appState.savePath, dirTitle)
         os.makedirs(self.appState.outputDir)
 
         # Copy the files to the output directory

@@ -83,13 +83,25 @@ class App(customtkinter.CTk):
         )
         self.urlEntry.insert(0, self.appState.downloadURL)
 
+        self.buttonFrame = customtkinter.CTkFrame(self, width=600, height=50, fg_color="transparent")
+        self.buttonFrame.grid(row=7, column=1, sticky="new", columnspan=6)
+
         # download button
         self.downloadButton = customtkinter.CTkButton(
-            self, text="Download", command=self.handleDownload
+            self.buttonFrame, text="Download", command=self.handleDownload
         )
         self.downloadButton.grid(
-            row=7, column=1, padx=20, pady=(10, 0), sticky="nw", columnspan=4
+            row=1, column=1, padx=20, pady=(0, 0), sticky="nw",
         )
+
+        # reset button
+        self.resetButton = customtkinter.CTkButton(
+            self.buttonFrame, text="Reset", command=self.handleReset
+        )
+        self.resetButton.grid(
+            row=1, column=3, padx=10, pady=(0, 0), sticky="nw"
+        )
+        self.resetButton.configure(fg_color="gray", state="disabled")
 
     def openSavePathSelector(self):
         directory = os.path.abspath(askdirectory())
@@ -117,9 +129,19 @@ class App(customtkinter.CTk):
             text="Downloaded!", fg_color="green", state="normal"
         )
 
+        self.resetButton.configure(state="normal")
+
         if sys.platform == 'darwin':
             subprocess.check_call(["open", "--", self.appState.outputDir])
         elif sys.platform == 'linux2':
             subprocess.check_call(["xdg-open", "--", self.appState.outputDir])
         elif sys.platform == 'win32':
             subprocess.check_call(["explorer", self.appState.outputDir])
+
+    def handleReset(self):
+        self.urlEntry.delete(0, "end")
+        self.appState.setDownloadURL("")
+        self.downloadButton.configure(
+            text="Download", fg_color=["#3B8ED0", "#1F6AA5"], state="normal"
+        )
+        self.resetButton.configure(state="disabled")
