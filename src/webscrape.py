@@ -144,7 +144,7 @@ class WebScrape:
 
         # create dir name in format pagetitle | YYYY-MM-DD_HH-MM-SS
         now = datetime.now()
-        dirTitle = now.strftime(f"{self.pageTitle} | %Y-%m-%d_%H-%M-%S")
+        dirTitle = now.strftime("%Y-%m-%d_%H-%M-%S")
 
         # Create a new directory in the output directory
         self.appState.outputDir = os.path.join(self.appState.savePath, dirTitle)
