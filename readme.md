@@ -7,12 +7,15 @@
 
 The application will remember the last folder and the last URL you entered even after you close it.
 
+## Reference Letter
+![reference](https://github.com/blekmus/textbook-downloader/assets/47277246/c8fd4f15-4c82-42c5-b701-025bfcf9bc83)
+
 ## Previews
 
 ![Group 23](https://github.com/blekmus/bookpage-downloader/assets/47277246/cd27f454-f583-4b37-82a6-b5b797db45bb)
 
 ## Build command
-```
+```shell
 pyinstaller --onefile --noconsole main.py
 ```
 
