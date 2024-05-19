@@ -1,4 +1,4 @@
-# How to use
+## How to use
 
 1. Click the "Select Folder" button to select the folder you want the webpage to be downloaded into.
 2. Paste in the URL of the resource page you want to download.
@@ -7,7 +7,11 @@
 
 The application will remember the last folder and the last URL you entered even after you close it.
 
-# Build command
+## Previews
+
+![Group 23](https://github.com/blekmus/bookpage-downloader/assets/47277246/cd27f454-f583-4b37-82a6-b5b797db45bb)
+
+## Build command
 ```
 pyinstaller --onefile --noconsole main.py
 ```
